@@ -13,7 +13,8 @@ way to update this template, but currently, we follow a pattern:
 ---
 
 ## Upcoming version 2023-XX-XX
-
+- [change] Fetch customer commission from assets and add handling
+  [#293](https://github.com/sharetribe/web-template/pull/293)
 - [change] ext/ directory: update email translation defaults for no-delivery-method scenario.
   [#292](https://github.com/sharetribe/web-template/pull/292)
 - [change] Code-split FieldDateInput, FieldDateRangeInput, FieldDateRangeController. The consequence
