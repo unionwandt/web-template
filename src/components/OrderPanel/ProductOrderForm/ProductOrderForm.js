@@ -29,16 +29,23 @@ const MAX_QUANTITY_FOR_DROPDOWN = 100;
 const handleFetchLineItems = ({
   quantity,
   deliveryMethod,
+  displayDeliveryMethod,
   listingId,
   isOwnListing,
   fetchLineItemsInProgress,
   onFetchTransactionLineItems,
 }) => {
   const stockReservationQuantity = Number.parseInt(quantity, 10);
+  const deliveryMethodMaybe = displayDeliveryMethod ? { deliveryMethod } : {};
   const isBrowser = typeof window !== 'undefined';
-  if (isBrowser && stockReservationQuantity && deliveryMethod && !fetchLineItemsInProgress) {
+  if (
+    isBrowser &&
+    stockReservationQuantity &&
+    (!displayDeliveryMethod || deliveryMethod) &&
+    !fetchLineItemsInProgress
+  ) {
     onFetchTransactionLineItems({
-      orderData: { stockReservationQuantity, deliveryMethod },
+      orderData: { stockReservationQuantity, ...deliveryMethodMaybe },
       listingId,
       isOwnListing,
     });
@@ -57,6 +64,7 @@ const renderForm = formRenderProps => {
     formId,
     currentStock,
     hasMultipleDeliveryMethods,
+    displayDeliveryMethod,
     listingId,
     isOwnListing,
     onFetchTransactionLineItems,
@@ -80,6 +88,7 @@ const renderForm = formRenderProps => {
       handleFetchLineItems({
         quantity,
         deliveryMethod,
+        displayDeliveryMethod,
         listingId,
         isOwnListing,
         fetchLineItemsInProgress,
@@ -112,7 +121,7 @@ const renderForm = formRenderProps => {
       // Blur event will show validator message
       formApi.blur('quantity');
       formApi.focus('quantity');
-    } else if (!deliveryMethod) {
+    } else if (displayDeliveryMethod && !deliveryMethod) {
       e.preventDefault();
       // Blur event will show validator message
       formApi.blur('deliveryMethod');
@@ -181,7 +190,7 @@ const renderForm = formRenderProps => {
         </FieldSelect>
       )}
 
-      {hasNoStockLeft ? null : hasMultipleDeliveryMethods ? (
+      {hasNoStockLeft || !displayDeliveryMethod ? null : hasMultipleDeliveryMethods ? (
         <FieldSelect
           id={`${formId}.deliveryMethod`}
           className={css.deliveryField}
@@ -261,11 +270,11 @@ const renderForm = formRenderProps => {
 
 const ProductOrderForm = props => {
   const intl = useIntl();
-  const { price, currentStock, pickupEnabled, shippingEnabled } = props;
+  const { price, currentStock, pickupEnabled, shippingEnabled, displayDeliveryMethod } = props;
 
   // Should not happen for listings that go through EditListingWizard.
   // However, this might happen for imported listings.
-  if (!pickupEnabled && !shippingEnabled) {
+  if (displayDeliveryMethod && !pickupEnabled && !shippingEnabled) {
     return (
       <p className={css.error}>
         <FormattedMessage id="ProductOrderForm.noDeliveryMethodSet" />
@@ -276,9 +285,9 @@ const ProductOrderForm = props => {
   const hasOneItemLeft = currentStock && currentStock === 1;
   const quantityMaybe = hasOneItemLeft ? { quantity: '1' } : {};
   const singleDeliveryMethodAvailableMaybe =
-    shippingEnabled && !pickupEnabled
+    displayDeliveryMethod && shippingEnabled && !pickupEnabled
       ? { deliveryMethod: 'shipping' }
-      : !shippingEnabled && pickupEnabled
+      : displayDeliveryMethod && !shippingEnabled && pickupEnabled
       ? { deliveryMethod: 'pickup' }
       : {};
   const hasMultipleDeliveryMethods = pickupEnabled && shippingEnabled;
@@ -288,6 +297,7 @@ const ProductOrderForm = props => {
     <FinalForm
       initialValues={initialValues}
       hasMultipleDeliveryMethods={hasMultipleDeliveryMethods}
+      displayDeliveryMethod={displayDeliveryMethod}
       {...props}
       intl={intl}
       render={renderForm}
