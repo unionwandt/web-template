@@ -63,6 +63,7 @@ const renderForm = formRenderProps => {
     intl,
     formId,
     currentStock,
+    allowOrdersOfMultipleItems,
     hasMultipleDeliveryMethods,
     displayDeliveryMethod,
     listingId,
@@ -162,7 +163,7 @@ const renderForm = formRenderProps => {
   return (
     <Form onSubmit={handleFormSubmit}>
       <FormSpy subscription={{ values: true }} onChange={handleOnChange} />
-      {hasNoStockLeft ? null : hasOneItemLeft ? (
+      {hasNoStockLeft ? null : hasOneItemLeft || !allowOrdersOfMultipleItems ? (
         <FieldTextInput
           id={`${formId}.quantity`}
           className={css.quantityField}
