@@ -20,3 +20,13 @@
   align-items: center;
   justify-content: center;
 }
+
+/**
+ * Defines CSS classes for the page layout.
+ * 
+ * layout: Sets up grid layout for the overall page.
+ * topbar: Sticky top navigation bar. 
+ * main: Main content area.
+ * loading: Centered loading indicator.
+ */
+
